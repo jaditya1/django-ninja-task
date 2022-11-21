@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  api:
+    container_name: seedx_api
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ./apidemo:/code
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+
+    env_file:
+      - .env
+
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+    depends_on:
+      - seedx_db_test
+
+  seedx_db_test:
+    container_name: demo_db
+    image: postgres:latest
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    command: -p ${DB_PORT}
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PWD}
+
